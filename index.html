@@ -1,35 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Wallpaper Hub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin:0; font-family:Arial; background:#f4f6fb; }
-header { background:#111827; color:white; padding:18px; font-size:22px; }
-.grid { display:grid; gap:20px; padding:20px; }
-.grid.mobile { grid-template-columns:repeat(4,1fr); }
-.grid.pc { grid-template-columns:repeat(2,1fr); }
-@media(max-width:800px){ .grid.mobile,.grid.pc{grid-template-columns:repeat(2,1fr);} }
-@media(max-width:500px){ .grid.mobile,.grid.pc{grid-template-columns:1fr;} }
-
-.card {
-    background:white;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 5px 15px rgba(0,0,0,.2);
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6fb;
 }
 
-.card img { width:100%; }
+/* HEADER */
+header {
+    background: #111827;
+    color: white;
+    padding: 18px;
+    font-size: 22px;
+}
 
-button {
-    width:100%;
-    padding:10px;
-    background:black;
-    color:white;
-    border:none;
-    cursor:pointer;
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+    background: linear-gradient(135deg,#1e293b,#020617);
+    color: white;
+}
+
+.hero button {
+    margin: 10px;
+    padding: 14px 36px;
+    background: #2563eb;
+    border: none;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+}
+
+/* SECTION */
+.section {
+    padding: 30px;
+}
+
+.section h2 {
+    border-left: 6px solid #2563eb;
+    padding-left: 12px;
+}
+
+/* GRID */
+.grid-mobile {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.grid-pc {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+@media(max-width:900px){
+    .grid-mobile, .grid-pc {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+@media(max-width:600px){
+    .grid-mobile, .grid-pc {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CARD */
+.card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,.2);
+}
+
+.card img {
+    width: 100%;
+    display: block;
+}
+
+.download {
+    background: black;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -38,33 +99,91 @@ button {
 
 <header>Wallpaper Hub</header>
 
-<h2 style="padding-left:20px;">Mobile Wallpapers</h2>
-<div class="grid mobile">
-    <div class="card">
-        <img src="mobile/krishna/1.jpg">
-        <button onclick="download('mobile/krishna/1.jpg')">Download</button>
-    </div>
-    <div class="card">
-        <img src="mobile/krishna/2.jpg">
-        <button onclick="download('mobile/krishna/2.jpg')">Download</button>
-    </div>
-</div>
+<section class="hero">
+    <h1>Premium Wallpapers</h1>
+    <button onclick="showHome()">🏠 Home</button>
+    <button onclick="showCategory('mobile')">📱 Mobile</button>
+    <button onclick="showCategory('pc')">💻 PC</button>
+</section>
 
-<h2 style="padding-left:20px;">PC Wallpapers</h2>
-<div class="grid pc">
-    <div class="card">
-        <img src="pc/nature/1.jpg">
-        <button onclick="download('pc/nature/1.jpg')">Download</button>
-    </div>
-</div>
+<div id="home" class="section"></div>
+<div id="content" class="section"></div>
 
 <script>
+// 🔥 MANUAL DATA (EDIT THIS ONLY)
+const DATA = {
+    mobile: {
+        "krishna": ["1.jpg", "2.jpg"],
+        "hanuman": ["1.jpg"]
+    },
+    pc: {
+        "nature": ["1.jpg"],
+        "cars": ["1.jpg"]
+    }
+};
+
+const BASE = "./";
+
+/* HOME PAGE */
+function showHome() {
+    document.getElementById("content").innerHTML = "";
+    const home = document.getElementById("home");
+    home.innerHTML = "<h2>🔥 Latest Wallpapers</h2>";
+
+    let count = 0;
+
+    for (const type in DATA) {
+        for (const folder in DATA[type]) {
+            DATA[type][folder].forEach(img => {
+                if (count >= 6) return;
+
+                home.innerHTML += `
+                    <div class="card">
+                        <img src="${BASE}${type}/${folder}/${img}">
+                        <div class="download" onclick="download('${BASE}${type}/${folder}/${img}')">Download</div>
+                    </div>`;
+                count++;
+            });
+        }
+    }
+}
+
+/* CATEGORY PAGE */
+function showCategory(type) {
+    document.getElementById("home").innerHTML = "";
+    const content = document.getElementById("content");
+    content.innerHTML = "";
+
+    for (const folder in DATA[type]) {
+        const section = document.createElement("div");
+        section.innerHTML = `<h2>${folder}</h2>`;
+
+        const grid = document.createElement("div");
+        grid.className = type === "mobile" ? "grid-mobile" : "grid-pc";
+
+        DATA[type][folder].forEach(img => {
+            grid.innerHTML += `
+                <div class="card">
+                    <img src="${BASE}${type}/${folder}/${img}">
+                    <div class="download" onclick="download('${BASE}${type}/${folder}/${img}')">Download</div>
+                </div>`;
+        });
+
+        section.appendChild(grid);
+        content.appendChild(section);
+    }
+}
+
+/* DOWNLOAD */
 function download(url) {
     const a = document.createElement("a");
     a.href = url;
     a.download = "";
     a.click();
 }
+
+/* INIT */
+showHome();
 </script>
 
 </body>
