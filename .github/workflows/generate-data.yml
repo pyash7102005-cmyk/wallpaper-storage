@@ -1,0 +1,46 @@
+name: Generate Image Index
+
+on:
+  push:
+    paths:
+      - "mobile/**"
+      - "pc/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate data.json
+        run: |
+          node << 'EOF'
+          const fs = require("fs");
+          const path = require("path");
+
+          const base = process.cwd();
+          const data = { mobile: {}, pc: {} };
+
+          ["mobile", "pc"].forEach(type => {
+            const baseDir = path.join(base, type);
+            if (!fs.existsSync(baseDir)) return;
+
+            fs.readdirSync(baseDir).forEach(folder => {
+              const folderPath = path.join(baseDir, folder);
+              if (!fs.statSync(folderPath).isDirectory()) return;
+
+              data[type][folder] = fs.readdirSync(folderPath)
+                .filter(f => /\.(jpg|png|jpeg|webp)$/i.test(f));
+            });
+          });
+
+          fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
+          EOF
+
+      - name: Commit data.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data.json
+          git commit -m "Auto update data.json" || echo "No changes"
+          git push
