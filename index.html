@@ -1,56 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Wallpaper Hub</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallpaper Test</title>
+
 <style>
-body{margin:0;font-family:Arial;background:#f4f6fb}
-header{background:#111827;color:#fff;padding:18px;font-size:22px}
-.grid{display:grid;gap:20px}
-.grid.mobile{grid-template-columns:repeat(4,1fr)}
-.grid.pc{grid-template-columns:repeat(2,1fr)}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:500px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border-radius:12px;overflow:hidden}
-.card img{width:100%}
-.download{background:#000;color:#fff;text-align:center;padding:10px}
-</style>
-</head>
-<body>
-
-<header>Wallpaper Hub</header>
-
-<div id="home"></div>
-<div id="content"></div>
-
-<script>
-const BASE = "https://cdn.jsdelivr.net/gh/pyash7102005-cmyk/wallpaper-storage@main/";
-
-async function load() {
-  const res = await fetch("data.json");
-  const data = await res.json();
-
-  const home = document.getElementById("home");
-  home.innerHTML = "<h2>Latest Wallpapers</h2>";
-
-  let count = 0;
-  for (const type in data) {
-    for (const folder in data[type]) {
-      data[type][folder].forEach(img => {
-        if (count >= 6) return;
-        home.innerHTML += `
-          <div class="card">
-            <img src="${BASE}${type}/${folder}/${img}">
-            <div class="download">Download</div>
-          </div>`;
-        count++;
-      });
-    }
-  }
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f2f2f2;
 }
 
-load();
+h1 {
+    text-align: center;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.card img {
+    width: 100%;
+    display: block;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Wallpaper Test</h1>
+
+<div class="grid">
+    <div class="card">
+        <img src="images/mobile1.jpg">
+        <button onclick="download('images/mobile1.jpg')">Download</button>
+    </div>
+
+    <div class="card">
+        <img src="images/mobile2.jpg">
+        <button onclick="download('images/mobile2.jpg')">Download</button>
+    </div>
+
+    <div class="card">
+        <img src="images/pc1.jpg">
+        <button onclick="download('images/pc1.jpg')">Download</button>
+    </div>
+
+    <div class="card">
+        <img src="images/pc2.jpg">
+        <button onclick="download('images/pc2.jpg')">Download</button>
+    </div>
+</div>
+
+<script>
+function download(url) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}
 </script>
+
 </body>
 </html>
