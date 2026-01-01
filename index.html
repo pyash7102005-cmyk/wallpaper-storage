@@ -6,132 +6,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== BASIC ===== */
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6fb;
-    overflow-x: hidden;
-}
+body { margin:0; font-family:Arial; background:#f4f6fb; }
+header { background:#111827; color:white; padding:18px; font-size:22px; }
 
-/* ===== LOADER ===== */
-#loader {
-    position: fixed;
-    inset: 0;
-    background: #0f172a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    z-index: 9999;
-}
-
-.spinner {
-    width: 60px;
-    height: 60px;
-    border: 6px solid #334155;
-    border-top: 6px solid #38bdf8;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-#loader p {
-    margin-top: 15px;
-    color: #fff;
-    font-size: 18px;
-}
-
-/* ===== HEADER ===== */
-header {
-    background: #111827;
-    color: white;
-    padding: 18px;
-    font-size: 22px;
-}
-
-/* ===== HERO ===== */
 .hero {
-    text-align: center;
-    padding: 50px 20px;
-    background: linear-gradient(135deg,#1e293b,#020617);
-    color: white;
+    text-align:center;
+    padding:50px 20px;
+    background:linear-gradient(135deg,#1e293b,#020617);
+    color:white;
 }
 
 .hero button {
-    margin: 10px;
-    padding: 14px 36px;
-    background: #2563eb;
-    border: none;
-    border-radius: 30px;
-    color: white;
-    cursor: pointer;
+    margin:10px;
+    padding:14px 36px;
+    background:#2563eb;
+    border:none;
+    border-radius:30px;
+    color:white;
+    cursor:pointer;
 }
 
-/* ===== GRID ===== */
-.section {
-    padding: 30px;
-}
+.section { padding:30px; }
 
 .grid-mobile {
-    display: grid;
-    grid-template-columns: repeat(4,1fr);
-    gap: 20px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
 }
 
 .grid-pc {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 20px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
 }
 
 @media(max-width:900px){
-    .grid-mobile,.grid-pc { grid-template-columns: repeat(2,1fr); }
+    .grid-mobile,.grid-pc { grid-template-columns:repeat(2,1fr); }
 }
 @media(max-width:600px){
-    .grid-mobile,.grid-pc { grid-template-columns: 1fr; }
+    .grid-mobile,.grid-pc { grid-template-columns:1fr; }
 }
 
 .card {
-    background: white;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,.2);
 }
 
 .card img {
-    width: 100%;
-    display: block;
+    width:100%;
+    display:block;
 }
 
 .download {
-    background: black;
-    color: white;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-}
-
-/* hide content until load */
-#app {
-    display: none;
+    background:black;
+    color:white;
+    padding:10px;
+    text-align:center;
+    cursor:pointer;
 }
 </style>
 </head>
 
 <body>
-
-<!-- LOADER -->
-<div id="loader">
-    <div class="spinner"></div>
-    <p>Loading wallpapers...</p>
-</div>
-
-<!-- APP -->
-<div id="app">
 
 <header>Wallpaper Hub</header>
 
@@ -145,89 +83,71 @@ header {
 <div id="home" class="section"></div>
 <div id="content" class="section"></div>
 
-</div>
-
 <script>
 const USER = "pyash7102005-cmyk";
 const REPO = "wallpaper-storage";
-const BRANCH = "main";
+const API = `https://api.github.com/repos/${USER}/${REPO}/contents`;
 
-const BASE = `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@${BRANCH}/`;
-const API  = `https://data.jsdelivr.com/v1/package/gh/${USER}/${REPO}@${BRANCH}`;
-
-let TREE = [];
-let imagesLoaded = 0;
-
-/* LOAD TREE */
-async function loadTree() {
-    const res = await fetch(API);
-    const data = await res.json();
-    TREE = data.files;
+async function fetchDir(path) {
+    const res = await fetch(`${API}/${path}`);
+    return await res.json();
 }
 
-/* PRELOAD IMAGES */
-function preloadImages(urls) {
-    return Promise.all(
-        urls.map(src => new Promise(resolve => {
-            const img = new Image();
-            img.onload = resolve;
-            img.onerror = resolve;
-            img.src = src;
-        }))
-    );
+function imgURL(path) {
+    return `https://raw.githubusercontent.com/${USER}/${REPO}/main/${path}`;
 }
 
-/* LOAD HOME */
+/* HOME */
 async function loadHome() {
     document.getElementById("content").innerHTML = "";
     const home = document.getElementById("home");
     home.innerHTML = "<h2>🔥 Latest Wallpapers</h2>";
 
-    const images = TREE.filter(f =>
-        f.type === "file" &&
-        (f.name.endsWith(".jpg") || f.name.endsWith(".png") || f.name.endsWith(".webp"))
-    ).slice(-6);
+    const mobile = await fetchDir("mobile");
+    const pc = await fetchDir("pc");
 
-    const urls = images.map(img => BASE + img.name);
-    await preloadImages(urls);
+    let images = [];
 
-    images.forEach(img => {
+    for (let f of mobile) {
+        const imgs = await fetchDir(`mobile/${f.name}`);
+        imgs.forEach(i => images.push(`mobile/${f.name}/${i.name}`));
+    }
+
+    for (let f of pc) {
+        const imgs = await fetchDir(`pc/${f.name}`);
+        imgs.forEach(i => images.push(`pc/${f.name}/${i.name}`));
+    }
+
+    images.slice(0,6).forEach(img => {
         home.innerHTML += `
             <div class="card">
-                <img src="${BASE + img.name}">
-                <div class="download" onclick="download('${BASE + img.name}')">Download</div>
+                <img src="${imgURL(img)}">
+                <div class="download" onclick="download('${imgURL(img)}')">Download</div>
             </div>`;
     });
 }
 
-/* CATEGORY VIEW */
+/* CATEGORY */
 async function loadCategory(type) {
     document.getElementById("home").innerHTML = "";
     const content = document.getElementById("content");
     content.innerHTML = "";
 
-    const folders = [...new Set(
-        TREE.filter(f => f.name.startsWith(type + "/"))
-            .map(f => f.name.split("/")[1])
-    )];
+    const folders = await fetchDir(type);
 
-    for (const folder of folders) {
+    for (let folder of folders) {
         const section = document.createElement("div");
-        section.innerHTML = `<h2>${folder}</h2>`;
+        section.innerHTML = `<h2>${folder.name}</h2>`;
 
         const grid = document.createElement("div");
         grid.className = type === "mobile" ? "grid-mobile" : "grid-pc";
 
-        const images = TREE.filter(f => f.name.startsWith(`${type}/${folder}/`));
-        const urls = images.map(i => BASE + i.name);
-
-        await preloadImages(urls);
-
-        images.forEach(img => {
+        const imgs = await fetchDir(`${type}/${folder.name}`);
+        imgs.forEach(img => {
             grid.innerHTML += `
                 <div class="card">
-                    <img src="${BASE + img.name}">
-                    <div class="download" onclick="download('${BASE + img.name}')">Download</div>
+                    <img src="${imgURL(type+'/'+folder.name+'/'+img.name)}">
+                    <div class="download" onclick="download('${imgURL(type+'/'+folder.name+'/'+img.name)}')">Download</div>
                 </div>`;
         });
 
@@ -236,7 +156,6 @@ async function loadCategory(type) {
     }
 }
 
-/* DOWNLOAD */
 function download(url) {
     const a = document.createElement("a");
     a.href = url;
@@ -245,13 +164,7 @@ function download(url) {
 }
 
 /* INIT */
-(async () => {
-    await loadTree();
-    await loadHome();
-
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("app").style.display = "block";
-})();
+loadHome();
 </script>
 
 </body>
