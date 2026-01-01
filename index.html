@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wallpaper Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+}
+
+header {
+    background: #111827;
+    color: white;
+    padding: 18px 30px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg,#1e293b,#020617);
+    color: white;
+}
+
+.hero button {
+    margin: 10px;
+    padding: 14px 36px;
+    border-radius: 30px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Sections */
+.section {
+    padding: 40px 30px;
+}
+
+.section h2 {
+    border-left: 6px solid #2563eb;
+    padding-left: 12px;
+}
+
+/* Grid */
+.grid-mobile {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 20px;
+}
+
+.grid-pc {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 20px;
+}
+
+@media(max-width:900px){
+    .grid-mobile,.grid-pc { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:600px){
+    .grid-mobile,.grid-pc { grid-template-columns: 1fr; }
+}
+
+/* Card */
+.card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
+}
+
+.card img {
+    width: 100%;
+    display: block;
+}
+
+.mobile-img { height: 600px; object-fit: cover; }
+.pc-img { height: 380px; object-fit: cover; }
+
+.download-btn {
+    background: rgba(0,0,0,.7);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>Wallpaper Hub</header>
+
+<section class="hero">
+    <h1>Premium Wallpapers</h1>
+    <button onclick="showHome()">🏠 Home</button>
+    <button onclick="showCategory('mobile')">📱 Mobile</button>
+    <button onclick="showCategory('pc')">💻 PC</button>
+</section>
+
+<div id="home" class="section"></div>
+<div id="category" class="section"></div>
+
+<script>
+const USER = "pyash7102005-cmyk";
+const REPO = "wallpaper-storage";
+const BRANCH = "main";
+
+const API = `https://data.jsdelivr.com/v1/package/gh/${USER}/${REPO}@${BRANCH}`;
+const CDN = path => `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@${BRANCH}/${path}`;
+
+// Load full repo tree
+let TREE = [];
+
+async function loadTree() {
+    const res = await fetch(API);
+    const data = await res.json();
+    TREE = data.files;
+}
+
+/* HOME */
+function showHome() {
+    document.getElementById("category").innerHTML = "";
+    const home = document.getElementById("home");
+    home.innerHTML = "<h2>🔥 Latest Wallpapers</h2>";
+
+    const images = TREE.filter(f =>
+        f.type === "file" &&
+        (f.name.endsWith(".jpg") || f.name.endsWith(".png")) &&
+        (f.name.startsWith("mobile/") || f.name.startsWith("pc/"))
+    );
+
+    images.slice(-6).reverse().forEach(img => {
+        const isMobile = img.name.startsWith("mobile/");
+        home.innerHTML += `
+            <div class="card">
+                <img src="${CDN(img.name)}" class="${isMobile ? 'mobile-img' : 'pc-img'}">
+                <div class="download-btn" onclick="download('${CDN(img.name)}')">Download</div>
+            </div>`;
+    });
+}
+
+/* CATEGORY VIEW */
+function showCategory(type) {
+    document.getElementById("home").innerHTML = "";
+    const container = document.getElementById("category");
+    container.innerHTML = "";
+
+    const folders = [...new Set(
+        TREE.filter(f => f.name.startsWith(type + "/"))
+            .map(f => f.name.split("/")[1])
+    )];
+
+    folders.forEach(folder => {
+        const section = document.createElement("div");
+        section.innerHTML = `<h2>${folder}</h2>`;
+
+        const grid = document.createElement("div");
+        grid.className = type === "mobile" ? "grid-mobile" : "grid-pc";
+
+        const images = TREE.filter(f => f.name.startsWith(`${type}/${folder}/`));
+
+        images.forEach(img => {
+            grid.innerHTML += `
+                <div class="card">
+                    <img src="${CDN(img.name)}" class="${type==='mobile'?'mobile-img':'pc-img'}">
+                    <div class="download-btn" onclick="download('${CDN(img.name)}')">Download</div>
+                </div>`;
+        });
+
+        section.appendChild(grid);
+        container.appendChild(section);
+    });
+}
+
+function download(url) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}
+
+/* INIT */
+(async () => {
+    await loadTree();
+    showHome();
+})();
+</script>
+
+</body>
+</html>
