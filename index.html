@@ -2,72 +2,59 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Wallpaper Test</title>
+<title>Wallpaper Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #f2f2f2;
-}
-
-h1 {
-    text-align: center;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 20px;
-}
+body { margin:0; font-family:Arial; background:#f4f6fb; }
+header { background:#111827; color:white; padding:18px; font-size:22px; }
+.grid { display:grid; gap:20px; padding:20px; }
+.grid.mobile { grid-template-columns:repeat(4,1fr); }
+.grid.pc { grid-template-columns:repeat(2,1fr); }
+@media(max-width:800px){ .grid.mobile,.grid.pc{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:500px){ .grid.mobile,.grid.pc{grid-template-columns:1fr;} }
 
 .card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
 }
 
-.card img {
-    width: 100%;
-    display: block;
-}
+.card img { width:100%; }
 
 button {
-    width: 100%;
-    padding: 12px;
-    background: black;
-    color: white;
-    border: none;
-    cursor: pointer;
+    width:100%;
+    padding:10px;
+    background:black;
+    color:white;
+    border:none;
+    cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Wallpaper Test</h1>
+<header>Wallpaper Hub</header>
 
-<div class="grid">
+<h2 style="padding-left:20px;">Mobile Wallpapers</h2>
+<div class="grid mobile">
     <div class="card">
-        <img src="images/mobile1.jpg">
-        <button onclick="download('images/mobile1.jpg')">Download</button>
+        <img src="mobile/krishna/1.jpg">
+        <button onclick="download('mobile/krishna/1.jpg')">Download</button>
     </div>
-
     <div class="card">
-        <img src="images/mobile2.jpg">
-        <button onclick="download('images/mobile2.jpg')">Download</button>
+        <img src="mobile/krishna/2.jpg">
+        <button onclick="download('mobile/krishna/2.jpg')">Download</button>
     </div>
+</div>
 
+<h2 style="padding-left:20px;">PC Wallpapers</h2>
+<div class="grid pc">
     <div class="card">
-        <img src="images/pc1.jpg">
-        <button onclick="download('images/pc1.jpg')">Download</button>
-    </div>
-
-    <div class="card">
-        <img src="images/pc2.jpg">
-        <button onclick="download('images/pc2.jpg')">Download</button>
+        <img src="pc/nature/1.jpg">
+        <button onclick="download('pc/nature/1.jpg')">Download</button>
     </div>
 </div>
 
@@ -76,9 +63,7 @@ function download(url) {
     const a = document.createElement("a");
     a.href = url;
     a.download = "";
-    document.body.appendChild(a);
     a.click();
-    a.remove();
 }
 </script>
 
