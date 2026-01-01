@@ -6,73 +6,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin:0; font-family:Arial; background:#f4f6fb; }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6fb;
+}
 
 header {
-    background:#111827;
-    color:white;
-    padding:18px;
-    font-size:22px;
+    background: #111827;
+    color: white;
+    padding: 18px;
+    font-size: 22px;
 }
 
 .hero {
-    text-align:center;
-    padding:50px 20px;
-    background:linear-gradient(135deg,#1e293b,#020617);
-    color:white;
+    text-align: center;
+    padding: 50px 20px;
+    background: linear-gradient(135deg,#1e293b,#020617);
+    color: white;
 }
 
 .hero button {
-    margin:10px;
-    padding:14px 36px;
-    background:#2563eb;
-    border:none;
-    border-radius:30px;
-    color:white;
-    cursor:pointer;
+    margin: 10px;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 30px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
 }
 
 .section {
-    padding:30px;
+    padding: 30px;
 }
 
+.section h2 {
+    border-left: 6px solid #2563eb;
+    padding-left: 12px;
+}
+
+/* GRID */
 .grid-mobile {
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:20px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 20px;
 }
 
 .grid-pc {
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:20px;
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 20px;
 }
 
 @media(max-width:900px){
-    .grid-mobile,.grid-pc { grid-template-columns:repeat(2,1fr); }
+    .grid-mobile,.grid-pc { grid-template-columns: repeat(2,1fr); }
 }
 @media(max-width:600px){
-    .grid-mobile,.grid-pc { grid-template-columns:1fr; }
+    .grid-mobile,.grid-pc { grid-template-columns: 1fr; }
 }
 
+/* CARD */
 .card {
-    background:white;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 8px 20px rgba(0,0,0,.15);
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,.2);
 }
 
 .card img {
-    width:100%;
-    display:block;
+    width: 100%;
+    display: block;
 }
 
 .download {
-    background:black;
-    color:white;
-    text-align:center;
-    padding:10px;
-    cursor:pointer;
+    background: black;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -117,16 +128,14 @@ function loadHome() {
     const images = TREE.filter(f =>
         f.type === "file" &&
         (f.name.endsWith(".jpg") || f.name.endsWith(".png") || f.name.endsWith(".webp"))
-    ).reverse().slice(0,6);
+    ).slice(-6);
 
     images.forEach(img => {
-        const isMobile = img.name.startsWith("mobile/");
         home.innerHTML += `
             <div class="card">
                 <img src="${BASE}${img.name}">
                 <div class="download" onclick="download('${BASE}${img.name}')">Download</div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
